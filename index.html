@@ -1,0 +1,135 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import plotly.express as px
+from textblob import TextBlob
+import time
+
+# --- Page Configuration ---
+st.set_page_config(
+    page_title="AI Researcher Portfolio",
+    page_icon="🧠",
+    layout="wide"
+)
+
+# --- Title & Introduction ---
+st.title("🧠 AI/ML Researcher: Interactive Dashboard")
+st.markdown("""
+This dashboard demonstrates the workflow of an AI Researcher: 
+**Data Analysis**, **Model Experimentation**, and **Publication**.
+""")
+
+# --- Sidebar for Researcher Controls ---
+st.sidebar.header("⚙️ Experiment Settings")
+st.sidebar.write("Simulate model hyperparameters:")
+learning_rate = st.sidebar.slider("Learning Rate", 0.001, 0.1, 0.01)
+epochs = st.sidebar.slider("Epochs", 10, 100, 50)
+model_type = st.sidebar.selectbox("Model Architecture", ["Transformer", "CNN", "RNN"])
+
+st.sidebar.markdown("---")
+st.sidebar.info(f"**Current Config:**\n\nModel: {model_type}\n\nLR: {learning_rate}")
+
+# --- Main Tabs ---
+tab1, tab2, tab3 = st.tabs(["📊 Data Analysis (EDA)", "🧪 Experiment Lab (NLP)", "📝 Research Report"])
+
+# =================================================
+# TAB 1: EXPLORATORY DATA ANALYSIS (Simulated)
+# =================================================
+with tab1:
+    st.header("Exploratory Data Analysis & Metrics")
+    st.write("Researchers use EDA to understand data distributions before training.")
+    
+    # Generate synthetic data to simulate model training history
+    data = pd.DataFrame({
+        'Epoch': range(1, epochs + 1),
+        'Training Loss': np.exp(-np.linspace(0, 5, epochs)) + np.random.normal(0, 0.02, epochs),
+        'Validation Accuracy': np.linspace(0.5, 0.95, epochs) + np.random.normal(0, 0.01, epochs)
+    })
+    
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.subheader("Model Training Loss")
+        fig_loss = px.line(data, x='Epoch', y='Training Loss', title=f"Loss Convergence ({model_type})", markers=True)
+        fig_loss.update_traces(line_color='#FF4B4B')
+        st.plotly_chart(fig_loss, use_container_width=True)
+        
+    with col2:
+        st.subheader("Accuracy Metrics")
+        fig_acc = px.area(data, x='Epoch', y='Validation Accuracy', title=f"Accuracy over Time ({model_type})")
+        fig_acc.update_traces(line_color='#4B4BFF')
+        st.plotly_chart(fig_acc, use_container_width=True)
+
+    st.caption(f"Visualizing {epochs} epochs of training data with a learning rate of {learning_rate}.")
+
+# =================================================
+# TAB 2: EXPERIMENT LAB (Interactive NLP)
+# =================================================
+with tab2:
+    st.header("Live Model Inference: Sentiment Analysis")
+    st.write("Test a simple Natural Language Processing (NLP) model in real-time.")
+    
+    # Input area
+    user_text = st.text_area("Enter text to analyze:", "AI research is challenging but incredibly rewarding!")
+    
+    if st.button("Run Analysis"):
+        with st.spinner('Processing tensors...'):
+            time.sleep(1) # Simulate processing time
+            blob = TextBlob(user_text)
+            sentiment = blob.sentiment.polarity
+            subjectivity = blob.sentiment.subjectivity
+            
+            # Display results
+            c1, c2, c3 = st.columns(3)
+            
+            with c1:
+                st.metric("Polarity Score", f"{sentiment:.2f}")
+            with c2:
+                st.metric("Subjectivity Score", f"{subjectivity:.2f}")
+            with c3:
+                if sentiment > 0:
+                    st.success("Sentiment: POSITIVE 😊")
+                elif sentiment < 0:
+                    st.error("Sentiment: NEGATIVE 😠")
+                else:
+                    st.warning("Sentiment: NEUTRAL 😐")
+            
+            st.json({
+                "input_length": len(user_text),
+                "noun_phrases": blob.noun_phrases,
+                "detect_language": "en"
+            })
+
+# =================================================
+# TAB 3: RESEARCH REPORT (The Content)
+# =================================================
+with tab3:
+    st.header("📄 The Role of the AI Researcher")
+    
+    st.markdown("""
+    ### 1. Key Responsibilities
+    The day-to-day life of an AI/ML Researcher is a loop of hypothesis, experimentation, and validation.
+    * **Exploratory Data Analysis:** Identifying gaps in current technology.
+    * **Algorithm Design:** Designing novel loss functions and optimization strategies.
+    * **SOTA Review:** Reading ArXiv papers to stay current.
+    
+    ---
+    ### 2. The Researcher's Toolkit
+    | Category | Essential Tools |
+    | :--- | :--- |
+    | **Frameworks** | PyTorch, TensorFlow, JAX |
+    | **Math/Data** | NumPy, Pandas, SciPy |
+    | **Experimentation** | Weights & Biases, MLflow |
+    
+    ---
+    ### 3. Industry Importance
+    * **Generative AI Boom:** Driving tools like ChatGPT and Midjourney.
+    * **Unstructured Problems:** Solving protein folding (AlphaFold) and climate modeling.
+    * **Ethical AI:** Ensuring alignment and safety.
+    """)
+    
+    st.info("This section represents the 'Publication' phase of research.")
+
+# --- Footer ---
+st.markdown("---")
+st.markdown("Created for Owl AI Task | Prepared by Satyadarshi Rout")
